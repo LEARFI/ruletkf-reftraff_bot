@@ -1,189 +1,41 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lucky Wheel Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            background-color: #0f172a;
-            color: #ffffff;
-            font-family: 'Inter', -apple-system, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-        .wheel-container {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            margin-bottom: 30px;
-        }
-        #wheel {
-            width: 100%;
-            height: 100%;
-            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
-        }
-        .marker {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid #3b82f6; /* Синий указатель */
-            z-index: 10;
-            filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.5));
-        }
-        .center-dot {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            background: #ffffff;
-            border-radius: 50%;
-            z-index: 5;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-        }
-        button {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            border: none;
-            padding: 16px 48px;
-            border-radius: 16px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
-            transition: all 0.2s;
-        }
-        button:active { transform: scale(0.95); }
-        button:disabled {
-            background: #334155;
-            box-shadow: none;
-            cursor: not-allowed;
-            color: #94a3b8;
-        }
-        #status-text {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #94a3b8;
-            text-align: center;
-        }
+        body { background: #0f172a; color: white; text-align: center; font-family: sans-serif; }
+        .wheel-svg { width: 300px; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
+        button { padding: 15px 40px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-size: 18px; margin-top: 20px; }
+        button:disabled { background: #1e293b; }
     </style>
 </head>
 <body>
-
-    <h2 style="margin-bottom: 25px; letter-spacing: 1px;">LUCKY WHEEL</h2>
-
-    <div class="wheel-container">
-        <div class="marker"></div>
-        <div class="center-dot"></div>
-        <svg id="wheel" viewBox="0 0 100 100">
-            <g id="wheel-sectors"></g>
-        </svg>
-    </div>
-
-    <button id="spin-button">КРУТИТЬ</button>
-    <div id="status-text">Доступно 1 раз в 24 часа</div>
-
+    <h2>LUCKY WHEEL</h2>
+    <svg class="wheel-svg" id="wheel" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+        <g id="content">
+            <text x="50" y="20" fill="white" font-size="5" text-anchor="middle">$0.5</text>
+            <text x="80" y="50" fill="white" font-size="5" text-anchor="middle">MISS</text>
+            <text x="50" y="80" fill="white" font-size="5" text-anchor="middle">$0.1</text>
+            <text x="20" y="50" fill="white" font-size="5" text-anchor="middle">MISS</text>
+        </g>
+    </svg>
+    <br><button id="btn">КРУТИТЬ</button>
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Расширяем на весь экран
-
+        const btn = document.getElementById('btn');
         const wheel = document.getElementById('wheel');
-        const btn = document.getElementById('spin-button');
-        const sectorsGroup = document.getElementById('wheel-sectors');
-        const statusText = document.getElementById('status-text');
-
-        // Список призов (всего 8 секторов)
-        const prizes = [
-            { label: "$0.1", value: 0.1, color: "#1e293b" },
-            { label: "MISS", value: 0, color: "#0f172a" },
-            { label: "$0.5", value: 0.5, color: "#1e293b" },
-            { label: "MISS", value: 0, color: "#0f172a" },
-            { label: "$0.01", value: 0.01, color: "#1e293b" },
-            { label: "MISS", value: 0, color: "#0f172a" },
-            { label: "$1.0", value: 1.0, color: "#3b82f6" }, // Джекпот сектор
-            { label: "MISS", value: 0, color: "#0f172a" }
-        ];
-
-        // Рисуем сектора программно, чтобы текст был ровным
-        prizes.forEach((prize, i) => {
-            const angle = 360 / prizes.length;
-            const rotation = i * angle;
-            
-            // Создаем сектор SVG
-            const sectorG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            sectorG.setAttribute("transform", `rotate(${rotation} 50 50)`);
-
-            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("d", "M50,50 L50,0 A50,50 0 0,1 85.3,14.6 Z");
-            path.setAttribute("fill", prize.color);
-            path.setAttribute("stroke", "#0f172a");
-            path.setAttribute("stroke-width", "0.5");
-
-            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", "65");
-            text.setAttribute("y", "20");
-            text.setAttribute("fill", "white");
-            text.setAttribute("font-size", "4");
-            text.setAttribute("font-weight", "bold");
-            text.setAttribute("transform", `rotate(${angle / 2} 50 50)`);
-            text.textContent = prize.label;
-
-            sectorG.appendChild(path);
-            sectorG.appendChild(text);
-            sectorsGroup.appendChild(sectorG);
-        });
-
-        let currentRotation = 0;
-
-        btn.addEventListener('click', () => {
-            btn.disabled = true; // Блокируем кнопку
-            statusText.textContent = "Удача выбирает приз...";
-
-            const spins = 5 + Math.floor(Math.random() * 5); // 5-10 полных кругов
-            const extraDegrees = Math.floor(Math.random() * 360);
-            currentRotation += (spins * 360) + extraDegrees;
-
-            wheel.style.transform = `rotate(${currentRotation}deg)`;
-
-            // Ждем окончания анимации (4 секунды)
+        const prizes = [0.5, 0, 0.1, 0];
+        btn.onclick = () => {
+            btn.disabled = true;
+            let deg = 1800 + Math.random() * 360;
+            wheel.style.transform = `rotate(${deg}deg)`;
             setTimeout(() => {
-                const finalAngle = currentRotation % 360;
-                // Вычисляем индекс сектора (учитываем, что 0 градусов — это верх)
-                const sectorIndex = Math.floor(((360 - finalAngle + (360/prizes.length/2)) % 360) / (360/prizes.length));
-                const win = prizes[sectorIndex];
-
-                if (win.value > 0) {
-                    statusText.innerHTML = `ВЫИГРЫШ: <b style="color:#3b82f6">$${win.value}</b>!`;
-                } else {
-                    statusText.textContent = "Сегодня не повезло. Попробуйте завтра!";
-                }
-
-                // ОТПРАВКА ДАННЫХ В БОТ
-                tg.sendData(JSON.stringify({
-                    action: "wheel_win",
-                    amount: win.value
-                }));
-
-                // Закрываем приложение через 3 секунды после выигрыша
-                setTimeout(() => {
-                    tg.close();
-                }, 3000);
-
+                let sector = Math.floor(((360 - (deg % 360)) / 90)) % 4;
+                tg.sendData(JSON.stringify({amount: prizes[sector]}));
+                tg.close();
             }, 4000);
-        });
+        };
     </script>
 </body>
 </html>
