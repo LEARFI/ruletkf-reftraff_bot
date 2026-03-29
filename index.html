@@ -1,60 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
-        .wheel-container { position: relative; width: 300px; height: 300px; }
-        #wheel { width: 100%; height: 100%; transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1); }
-        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 20px; height: 30px; background: #00ff88; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
-        button { margin-top: 30px; padding: 10px 40px; border-radius: 10px; border: none; background: #00ff88; font-weight: bold; cursor: pointer; }
+        body { background: #0f172a; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .wheel-box { position: relative; width: 320px; height: 320px; border: 8px solid #1e293b; border-radius: 50%; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        #wheel { width: 100%; height: 100%; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
+        .marker { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 40px; background: #3b82f6; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
+        button { margin-top: 40px; background: #3b82f6; border: none; color: white; padding: 15px 50px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:disabled { background: #334155; opacity: 0.6; cursor: not-allowed; }
+        #status { margin-top: 15px; color: #94a3b8; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="wheel-container">
-        <div class="pointer"></div>
-        <svg id="wheel" viewBox="0 0 400 400">
-            <g id="inner-wheel">
-                <path d="M200,200 L200,10 A190,190 0 0,1 334,65 Z" fill="#1e293b" stroke="#0f172a"/>
-                <text x="230" y="70" fill="#00ff88" transform="rotate(-65 200,200)" style="font-size:18px;">$0.1</text>
-                
-                <path d="M200,200 L334,65 A190,190 0 0,1 390,200 Z" fill="#334155" stroke="#0f172a"/>
-                <text x="310" y="150" fill="#fff" transform="rotate(-20 200,200)" style="font-size:18px;">MISS</text>
-
-                <path d="M200,200 L390,200 A190,190 0 0,1 334,334 Z" fill="#1e293b" stroke="#0f172a"/>
-                <text x="310" y="240" fill="#00ff88" transform="rotate(25 200,200)" style="font-size:18px;">$0.01</text>
-
-                <path d="M200,200 L334,334 A190,190 0 0,1 200,390 Z" fill="#334155" stroke="#0f172a"/>
-                <text x="240" y="330" fill="#fff" transform="rotate(65 200,200)" style="font-size:18px;">MISS</text>
-
-                <path d="M200,200 L200,390 A190,190 0 0,1 65,334 Z" fill="#1e293b" stroke="#0f172a"/>
-                <text x="140" y="330" fill="#00ff88" transform="rotate(115 200,200)" style="font-size:18px;">$0.5</text>
-                
-                <circle cx="200" cy="200" r="20" fill="#00ff88"/>
-            </g>
+    <div style="margin-bottom: 20px; font-weight: bold; font-size: 22px;">LUCKY WHEEL</div>
+    <div class="wheel-box">
+        <div class="marker"></div>
+        <svg id="wheel" viewBox="0 0 100 100">
+            <g id="sectors"></g>
         </svg>
     </div>
-    <button id="spinBtn">КРУТИТЬ</button>
+    <button id="spinBtn">КРУТИТЬ БОНУС</button>
+    <div id="status">Доступно раз в 24 часа</div>
 
     <script>
         const tg = window.Telegram.WebApp;
+        tg.expand();
+        
         const wheel = document.getElementById('wheel');
-        const prizes = [0.1, 0, 0.01, 0, 0.5];
-        let rotation = 0;
+        const btn = document.getElementById('spinBtn');
+        const sectorsGroup = document.getElementById('sectors');
+        
+        const prizes = [
+            {v: 0.1, c: "#1e293b", t: "$0.1"}, {v: 0, c: "#0f172a", t: "MISS"},
+            {v: 0.5, c: "#1e293b", t: "$0.5"}, {v: 0, c: "#0f172a", t: "MISS"},
+            {v: 0.01, c: "#1e293b", t: "$0.01"}, {v: 0, c: "#0f172a", t: "MISS"},
+            {v: 1.0, c: "#3b82f6", t: "$1.0"}, {v: 0, c: "#0f172a", t: "MISS"}
+        ];
 
-        document.getElementById('spinBtn').onclick = () => {
-            rotation += 1800 + Math.random() * 360;
-            wheel.style.transform = `rotate(${rotation}deg)`;
-            
+        // Генерируем сектора
+        prizes.forEach((p, i) => {
+            const angle = 360 / prizes.length;
+            const rotate = i * angle;
+            const sector = `
+                <g transform="rotate(${rotate} 50 50)">
+                    <path d="M50,50 L50,0 A50,50 0 0,1 85.3,14.6 Z" fill="${p.c}" stroke="#0f172a"/>
+                    <text x="65" y="20" fill="white" font-size="4" transform="rotate(${angle/2} 50 50)" style="font-weight:bold">${p.t}</text>
+                </g>`;
+            sectorsGroup.innerHTML += sector;
+        });
+
+        let currentRotation = 0;
+
+        btn.onclick = () => {
+            btn.disabled = true; // Защита от частого нажатия
+            const randomSpin = 1800 + Math.floor(Math.random() * 1800);
+            currentRotation += randomSpin;
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+
             setTimeout(() => {
-                const deg = rotation % 360;
-                const sector = Math.floor(((360 - deg + 36) % 360) / 72); 
-                const win = prizes[sector] || 0;
+                const actualDeg = currentRotation % 360;
+                const sectorIndex = Math.floor(((360 - actualDeg + 22.5) % 360) / 45);
+                const win = prizes[sectorIndex].v;
+
+                // Отправляем данные в бота
+                tg.sendData(JSON.stringify({
+                    action: "spin",
+                    amount: win
+                }));
                 
-                // ОТПРАВКА ДАННЫХ В БОТА
-                tg.sendData(JSON.stringify({action: "wheel_win", amount: win}));
-                tg.close();
-            }, 5000);
+                document.getElementById('status').innerText = "Результат отправлен в бот!";
+            }, 4100);
         };
     </script>
 </body>
