@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #1a1a1a; color: white; text-align: center; font-family: sans-serif; }
+        .wheel-container { position: relative; width: 300px; margin: 50px auto; }
+        #wheel { width: 100%; transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1); }
+        .pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 30px; z-index: 10; }
+        button { background: #0088cc; border: none; padding: 15px 30px; color: white; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        button:disabled { background: #555; }
+    </style>
+</head>
+<body>
+    <h2>🎰 Ежедневная Рулетка</h2>
+    <div class="wheel-container">
+        <img src="https://i.imgur.com/v8p0mXN.png" id="wheel" alt="Wheel">
+        <img src="https://i.imgur.com/3p5mZ6F.png" class="pointer" alt="Pointer">
+    </div>
+    <button id="spinBtn" onclick="spin()">КРУТИТЬ</button>
+    <p id="status"></p>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function spin() {
+            const btn = document.getElementById('spinBtn');
+            const wheel = document.getElementById('wheel');
+            btn.disabled = true;
+
+            // Рандомная логика "перекрутов" и "промахов" (визуально)
+            const randomDegree = Math.floor(Math.random() * 360) + 1800; // 5 полных оборотов + остаток
+            wheel.style.transform = `rotate(${randomDegree}deg)`;
+
+            setTimeout(() => {
+                const prize = (Math.random() * (0.5 - 0.001) + 0.001).toFixed(3);
+                document.getElementById('status').innerText = `Вы выиграли: $${prize}!`;
+                
+                // Отправляем данные боту
+                tg.sendData(JSON.stringify({action: "wheel_win", amount: prize}));
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
