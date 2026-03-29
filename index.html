@@ -1,211 +1,84 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --primary: #00ff88;
-            --secondary: #00bd65;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text-on-wheel: #8aacc1;
-        }
-        body {
-            background-color: var(--bg);
-            color: white;
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            padding: 30px 20px;
-            box-sizing: border-box;
-        }
-        .header { font-size: 28px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;}
-        
-        .wheel-container { position: relative; width: 330px; height: 330px; margin-top: -40px;}
-        
-        /* Стрелка сверху */
-        .pointer {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 32px;
-            height: 40px;
-            background: var(--primary);
-            clip-path: polygon(50% 100%, 0 0, 100% 0);
-            z-index: 10;
-            filter: drop-shadow(0 0 10px rgba(0,255,136,0.6));
-        }
-        
-        /* Стилизация SVG колеса */
-        #wheel-svg {
-            width: 100%;
-            height: 100%;
-            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
-        }
-        .sector { stroke: var(--card); stroke-width: 2px; }
-        .sector:nth-child(even) { fill: #1a2335; }
-        .sector:nth-child(odd) { fill: #202b40; }
-        .center-circle { fill: var(--bg); stroke: var(--primary); stroke-width: 5px; }
-        .label { fill: var(--text-on-wheel); font-weight: 600; font-size: 16px; dominant-baseline: middle;}
-        
-        /* Кнопки и Результаты */
-        .controls { width: 100%; text-align: center;}
-        
-        button {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border: none;
-            padding: 18px 60px;
-            color: #064e3b;
-            font-size: 19px;
-            font-weight: 800;
-            border-radius: 18px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 12px 24px rgba(0,255,136,0.25);
-            width: 80%;
-        }
-        button:active { transform: scale(0.97) translateY(2px); box-shadow: 0 8px 16px rgba(0,255,136,0.2); }
-        button:disabled { opacity: 0.6; pointer-events: none; }
-        
-        #result-text { font-size: 21px; font-weight: 700; color: var(--primary); margin-bottom: 15px; min-height: 25px;}
-        #timer { font-size: 15px; color: #64748b; }
+        body { background: #0f172a; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .wheel-container { position: relative; width: 320px; height: 320px; }
+        #wheel-svg { width: 100%; height: 100%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 40px; background: #00ff88; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
+        button { margin-top: 30px; background: linear-gradient(135deg, #00ff88, #00bd65); border: none; padding: 15px 50px; border-radius: 15px; font-weight: bold; font-size: 18px; cursor: pointer; color: #064e3b; }
+        button:disabled { filter: grayscale(1); opacity: 0.5; }
     </style>
 </head>
 <body>
-
-    <div class="header">Lucky Wheel</div>
-
+    <div style="margin-bottom: 20px; font-size: 22px; font-weight: bold;">LUCKY WHEEL</div>
     <div class="wheel-container">
         <div class="pointer"></div>
         <svg id="wheel-svg" viewBox="0 0 400 400">
             <g id="spin-group">
-                <path class="sector" d="M200,200 L200,10 A190,190 0 0,1 334,65 Z"></path>
-                <text class="label" x="250" y="110" transform="rotate(-67 200,200)">$0.1</text>
+                <path d="M200,200 L200,10 A190,190 0 0,1 334,65 Z" fill="#1e293b" stroke="#0f172a"/>
+                <text x="240" y="80" fill="#00ff88" transform="rotate(-65 200,200)" style="font-size:14px">$0.1</text>
                 
-                <path class="sector" d="M200,200 L334,65 A190,190 0 0,1 390,200 Z"></path>
-                <text class="label" x="310" y="160" transform="rotate(-22 200,200)">MISS</text>
+                <path d="M200,200 L334,65 A190,190 0 0,1 390,200 Z" fill="#334155" stroke="#0f172a"/>
+                <text x="310" y="150" fill="#94a3b8" transform="rotate(-20 200,200)" style="font-size:14px">MISS</text>
 
-                <path class="sector" d="M200,200 L390,200 A190,190 0 0,1 334,334 Z"></path>
-                <text class="label" x="310" y="240" transform="rotate(22 200,200)">$0.01</text>
+                <path d="M200,200 L390,200 A190,190 0 0,1 334,334 Z" fill="#1e293b" stroke="#0f172a"/>
+                <text x="310" y="240" fill="#00ff88" transform="rotate(25 200,200)" style="font-size:14px">$0.01</text>
 
-                <path class="sector" d="M200,200 L334,334 A190,190 0 0,1 200,390 Z"></path>
-                <text class="label" x="250" y="300" transform="rotate(67 200,200)">MISS</text>
+                <path d="M200,200 L334,334 A190,190 0 0,1 200,390 Z" fill="#334155" stroke="#0f172a"/>
+                <text x="250" y="320" fill="#94a3b8" transform="rotate(65 200,200)" style="font-size:14px">MISS</text>
 
-                <path class="sector" d="M200,200 L200,390 A190,190 0 0,1 65,334 Z"></path>
-                <text class="label" x="150" y="300" transform="rotate(112 200,200)">$0.5</text>
+                <path d="M200,200 L200,390 A190,190 0 0,1 65,334 Z" fill="#1e293b" stroke="#0f172a"/>
+                <text x="140" y="320" fill="#00ff88" transform="rotate(115 200,200)" style="font-size:14px">$0.5</text>
 
-                <path class="sector" d="M200,200 L65,334 A190,190 0 0,1 10,200 Z"></path>
-                <text class="label" x="90" y="240" transform="rotate(157 200,200)">MISS</text>
+                <path d="M200,200 L65,334 A190,190 0 0,1 10,200 Z" fill="#334155" stroke="#0f172a"/>
+                <text x="70" y="250" fill="#94a3b8" transform="rotate(160 200,200)" style="font-size:14px">MISS</text>
 
-                <path class="sector" d="M200,200 L10,200 A190,190 0 0,1 65,65 Z"></path>
-                <text class="label" x="90" y="160" transform="rotate(202 200,200)">$0.2</text>
+                <path d="M200,200 L10,200 A190,190 0 0,1 65,65 Z" fill="#1e293b" stroke="#0f172a"/>
+                <text x="70" y="160" fill="#00ff88" transform="rotate(205 200,200)" style="font-size:14px">$0.2</text>
 
-                <path class="sector" d="M200,200 L65,65 A190,190 0 0,1 200,10 Z"></path>
-                <text class="label" x="150" y="110" transform="rotate(247 200,200)">MISS</text>
-
-                <circle class="center-circle" cx="200" cy="200" r="35"></circle>
+                <path d="M200,200 L65,65 A190,190 0 0,1 200,10 Z" fill="#334155" stroke="#0f172a"/>
+                <text x="130" y="80" fill="#94a3b8" transform="rotate(250 200,200)" style="font-size:14px">MISS</text>
+                
+                <circle cx="200" cy="200" r="30" fill="#0f172a" stroke="#00ff88" stroke-width="4"/>
             </g>
         </svg>
     </div>
-
-    <div class="controls">
-        <div id="result-text"></div>
-        <div id="timer" style="display:none;">Ждите еще: <span id="time-left"></span> ч.</div>
-        <button id="spinBtn" onclick="spin()">Крутить!</button>
-    </div>
+    <button id="spinBtn" onclick="spin()">КРУТИТЬ!</button>
+    <div id="status" style="margin-top:20px; color:#00ff88; font-weight:bold;"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-
-        let currentRotation = 0;
-        let isSpinning = false;
-        
-        // Массив выигрышей (секторы 0-7, начиная с 12 часов)
-        const sectorResults = ["0.100", "0.000", "0.010", "0.000", "0.500", "0.000", "0.200", "0.000"];
-
-        // Блок логики Кулдауна (синхронизация с ботом)
-        window.onload = checkCooldown;
-
-        function checkCooldown() {
-            // Чтобы показать таймер "Попробуй через 24ч",
-            // нам нужно время последнего прокрута от бота.
-            // Но пока что я просто сделаю кнопку серой при входе,
-            // если бот уже прислал ошибку кулдауна.
-            
-            // Если кнопка заблокирована на бэкенде, она останется серой.
-            // (Кнопку активируем только если бэкенд разрешит).
-        }
+        let rotation = 0;
+        const prizes = ["0.10", "0.00", "0.01", "0.00", "0.50", "0.00", "0.20", "0.00"];
 
         function spin() {
-            if (isSpinning) return;
-            isSpinning = true;
-            
             const btn = document.getElementById('spinBtn');
-            const wheelSvg = document.getElementById('wheel-svg');
-            const resDiv = document.getElementById('result-text');
-            const timerDiv = document.getElementById('timer');
-            
             btn.disabled = true;
-            btn.innerText = "Вращение...";
-            resDiv.innerText = "Удача близко...";
-            timerDiv.style.display = 'none';
-
-            // Математика Имитации перекрута: 5+ кругов
-            const totalSpinDeg = 1800 + Math.floor(Math.random() * 360); 
-            currentRotation += totalSpinDeg;
+            const wheel = document.getElementById('wheel-svg');
             
-            wheelSvg.style.transform = `rotate(${currentRotation}deg)`;
-
-            // Звук щелчка (если бы он был)
+            const randomExtra = Math.floor(Math.random() * 360);
+            rotation += 1800 + randomExtra; 
+            wheel.style.transform = `rotate(${rotation}deg)`;
 
             setTimeout(() => {
-                // Определяем сектор
-                const finalAngle = (currentRotation % 360);
-                const sectorIndex = Math.floor(finalAngle / 45); // 8 секторов по 45 градусов
-                // ВАЖНО: Math.floor не точен для SVG, я использую Math.ceil или округление
-                const correctSector = (8 - Math.ceil(finalAngle/45)) % 8; // Коррекция вращения
+                const actualDeg = rotation % 360;
+                const sector = Math.floor(((360 - actualDeg + 22.5) % 360) / 45);
+                const win = prizes[sector];
                 
-                const winAmount = sectorResults[correctSector];
-                let msg = "";
-
-                if (winAmount === "0.000") {
-                    msg = "😞 Упс! Промах. Попробуй завтра.";
-                    resDiv.style.color = "#64748b";
-                } else {
-                    msg = `🎉 Удача! Вы выиграли $${winAmount}`;
-                    resDiv.style.color = "var(--primary)";
-                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                }
+                document.getElementById('status').innerText = win > 0 ? `ВЫИГРЫШ: $${win}` : "ПРОМАХ!";
                 
-                resDiv.innerText = msg;
-                btn.innerText = "Ждите...";
+                // ОТПРАВКА ДАННЫХ БОТУ
+                tg.sendData(JSON.stringify({action: "wheel_win", amount: win}));
                 
-                // Чтобы кнопка стала серой и текст "Ждите еще 24ч", 
-                // мы должны получить эту информацию от БОТА.
-                
-                // Сначала отправляем данные, бот ответит
-                tg.sendData(JSON.stringify({action: "wheel_win", amount: winAmount}));
-
-                // Делаем паузу, чтобы юзер увидел результат, и закрываем
-                setTimeout(() => {
-                    tg.close();
-                }, 2000);
-
-            }, 5000); // 5 секунд вращения
+                setTimeout(() => tg.close(), 2000);
+            }, 5000);
         }
     </script>
 </body>
 </html>
-</body>
-</html>
+
