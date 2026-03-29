@@ -1,168 +1,61 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lucky Wheel</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            background: #0f172a;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-        .wheel-container {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            margin-top: 20px;
-        }
-        #wheel-svg {
-            width: 100%;
-            height: 100%;
-            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
-        }
-        .pointer {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 40px;
-            background: #00ff88;
-            clip-path: polygon(50% 100%, 0 0, 100% 0);
-            z-index: 10;
-            filter: drop-shadow(0 0 5px #00ff88);
-        }
-        button {
-            margin-top: 40px;
-            background: linear-gradient(135deg, #00ff88, #00bd65);
-            border: none;
-            padding: 15px 60px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 20px;
-            cursor: pointer;
-            color: #064e3b;
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
-            transition: 0.3s;
-        }
-        button:active { transform: scale(0.95); }
-        button:disabled {
-            background: #334155;
-            color: #94a3b8;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        #result-text {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #00ff88;
-            min-height: 24px;
-        }
+        body { background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
+        .wheel-container { position: relative; width: 300px; height: 300px; }
+        #wheel { width: 100%; height: 100%; transition: transform 5s cubic-bezier(0.1, 0, 0.1, 1); }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 20px; height: 30px; background: #00ff88; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
+        button { margin-top: 30px; padding: 10px 40px; border-radius: 10px; border: none; background: #00ff88; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div style="font-size: 24px; font-weight: 800; letter-spacing: 2px;">LUCKY WHEEL</div>
-    
     <div class="wheel-container">
         <div class="pointer"></div>
-        <svg id="wheel-svg" viewBox="0 0 400 400">
-            <g id="spin-group">
-                <path d="M200,200 L200,10 A190,190 0 0,1 334,65 Z" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
-                <text x="240" y="80" fill="#00ff88" transform="rotate(-65 200,200)" style="font-size:16px; font-weight:bold;">$0.1</text>
+        <svg id="wheel" viewBox="0 0 400 400">
+            <g id="inner-wheel">
+                <path d="M200,200 L200,10 A190,190 0 0,1 334,65 Z" fill="#1e293b" stroke="#0f172a"/>
+                <text x="230" y="70" fill="#00ff88" transform="rotate(-65 200,200)" style="font-size:18px;">$0.1</text>
                 
-                <path d="M200,200 L334,65 A190,190 0 0,1 390,200 Z" fill="#334155" stroke="#0f172a" stroke-width="2"/>
-                <text x="310" y="150" fill="#94a3b8" transform="rotate(-20 200,200)" style="font-size:16px;">MISS</text>
+                <path d="M200,200 L334,65 A190,190 0 0,1 390,200 Z" fill="#334155" stroke="#0f172a"/>
+                <text x="310" y="150" fill="#fff" transform="rotate(-20 200,200)" style="font-size:18px;">MISS</text>
 
-                <path d="M200,200 L390,200 A190,190 0 0,1 334,334 Z" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
-                <text x="310" y="240" fill="#00ff88" transform="rotate(25 200,200)" style="font-size:16px; font-weight:bold;">$0.01</text>
+                <path d="M200,200 L390,200 A190,190 0 0,1 334,334 Z" fill="#1e293b" stroke="#0f172a"/>
+                <text x="310" y="240" fill="#00ff88" transform="rotate(25 200,200)" style="font-size:18px;">$0.01</text>
 
-                <path d="M200,200 L334,334 A190,190 0 0,1 200,390 Z" fill="#334155" stroke="#0f172a" stroke-width="2"/>
-                <text x="250" y="320" fill="#94a3b8" transform="rotate(65 200,200)" style="font-size:16px;">MISS</text>
+                <path d="M200,200 L334,334 A190,190 0 0,1 200,390 Z" fill="#334155" stroke="#0f172a"/>
+                <text x="240" y="330" fill="#fff" transform="rotate(65 200,200)" style="font-size:18px;">MISS</text>
 
-                <path d="M200,200 L200,390 A190,190 0 0,1 65,334 Z" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
-                <text x="140" y="320" fill="#00ff88" transform="rotate(115 200,200)" style="font-size:16px; font-weight:bold;">$0.5</text>
-
-                <path d="M200,200 L65,334 A190,190 0 0,1 10,200 Z" fill="#334155" stroke="#0f172a" stroke-width="2"/>
-                <text x="70" y="250" fill="#94a3b8" transform="rotate(160 200,200)" style="font-size:16px;">MISS</text>
-
-                <path d="M200,200 L10,200 A190,190 0 0,1 65,65 Z" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
-                <text x="70" y="160" fill="#00ff88" transform="rotate(205 200,200)" style="font-size:16px; font-weight:bold;">$0.2</text>
-
-                <path d="M200,200 L65,65 A190,190 0 0,1 200,10 Z" fill="#334155" stroke="#0f172a" stroke-width="2"/>
-                <text x="130" y="80" fill="#94a3b8" transform="rotate(250 200,200)" style="font-size:16px;">MISS</text>
+                <path d="M200,200 L200,390 A190,190 0 0,1 65,334 Z" fill="#1e293b" stroke="#0f172a"/>
+                <text x="140" y="330" fill="#00ff88" transform="rotate(115 200,200)" style="font-size:18px;">$0.5</text>
                 
-                <circle cx="200" cy="200" r="35" fill="#0f172a" stroke="#00ff88" stroke-width="4"/>
+                <circle cx="200" cy="200" r="20" fill="#00ff88"/>
             </g>
         </svg>
     </div>
-
-    <div id="result-text"></div>
-    <button id="spinBtn">КРУТИТЬ БОНУС</button>
+    <button id="spinBtn">КРУТИТЬ</button>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
+        const wheel = document.getElementById('wheel');
+        const prizes = [0.1, 0, 0.01, 0, 0.5];
+        let rotation = 0;
 
-        const wheel = document.getElementById('wheel-svg');
-        const btn = document.getElementById('spinBtn');
-        const resultText = document.getElementById('result-text');
-
-        let currentRotation = 0;
-        // Массив призов по секторам (против часовой стрелки от 12:00)
-        const prizes = [0.10, 0, 0.01, 0, 0.50, 0, 0.20, 0];
-
-        btn.addEventListener('click', () => {
-            btn.disabled = true;
-            resultText.innerText = "Удача выбирает...";
-
-            // Случайное количество полных оборотов + случайный сектор
-            const spins = 5 + Math.floor(Math.random() * 5); 
-            const extraDegrees = Math.floor(Math.random() * 360);
-            currentRotation += (spins * 360) + extraDegrees;
-
-            wheel.style.transform = `rotate(${currentRotation}deg)`;
-
-            // Ждем завершения анимации (5 секунд)
+        document.getElementById('spinBtn').onclick = () => {
+            rotation += 1800 + Math.random() * 360;
+            wheel.style.transform = `rotate(${rotation}deg)`;
+            
             setTimeout(() => {
-                // Вычисляем, на каком секторе остановились
-                const actualDegrees = currentRotation % 360;
-                // Сдвиг на 22.5 градуса для точности попадания в центр сектора
-                const sectorIndex = Math.floor(((360 - actualDegrees + 22.5) % 360) / 45);
-                const winAmount = prizes[sectorIndex];
-
-                if (winAmount > 0) {
-                    resultText.innerText = `ВЫИГРЫШ: $${winAmount}!`;
-                } else {
-                    resultText.innerText = "СЕГОДНЯ MISS, ПОВЕЗЕТ ЗАВТРА!";
-                }
-
-                // ВНЕДРЕНИЕ В БАЗУ: Отправка данных боту
-                const dataToSend = {
-                    action: "wheel_win",
-                    amount: winAmount
-                };
-
-                // Отправляем данные в бота и закрываем Mini App через 2 сек
-                tg.sendData(JSON.stringify(dataToSend));
+                const deg = rotation % 360;
+                const sector = Math.floor(((360 - deg + 36) % 360) / 72); 
+                const win = prizes[sector] || 0;
                 
-                setTimeout(() => {
-                    tg.close();
-                }, 2500);
-
+                // ОТПРАВКА ДАННЫХ В БОТА
+                tg.sendData(JSON.stringify({action: "wheel_win", amount: win}));
+                tg.close();
             }, 5000);
-        });
+        };
     </script>
 </body>
 </html>
